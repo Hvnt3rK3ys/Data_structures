@@ -1,2 +1,2 @@
-## Taller 1
+## Taller 2
 ### General description
