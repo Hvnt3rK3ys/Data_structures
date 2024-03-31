@@ -1,6 +1,6 @@
-## Taller 1
+# Taller 1
 ### General description
-Para conocer los tipos de datos primitivos se consultó: 
+The primitive data types were consulted from: 
 
 - **Python Docs**: [1.](https://docs.python.org/3/library/datatypes.html)
 - **Go Lang Docs**: [2.](https://pkg.go.dev/go.mongodb.org/mongo-driver/bson/primitive) and [3.](https://www.geeksforgeeks.org/data-types-in-go/)
