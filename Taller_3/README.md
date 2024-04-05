@@ -2,6 +2,9 @@
 
 Esta documentación describe cómo usar la API FastAPI para interactuar con un sistema de gestión de tutelas.
 
+# API disponible en:
+`asdkasdkas kda;sk;dka; l`
+
 ## Endpoints Disponibles
 
 ### 1. [GET] / (Root)
@@ -52,136 +55,4 @@ Esta documentación describe cómo usar la API FastAPI para interactuar con un s
 
 
 
-```
-{
-  "openapi": "3.1.0",
-  "info": {
-    "title": "FastAPI",
-    "version": "0.1.0"
-  },
-  "paths": {
-    "/": {
-      "get": {
-        "summary": "Root",
-        "description": "Esta función redirige la URL raíz a la URL de búsqueda.\n\nReturns:\n    RedirectResponse: Una respuesta de redirección a la URL de búsqueda.",
-        "operationId": "root__get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/search": {
-      "get": {
-        "summary": "Search Tutelas",
-        "description": "Esta función obtiene todas las tutelas y las devuelve en un diccionario.\n\nReturns:\n    dict: Un diccionario con las tutelas como valor de la clave 'tutelas'.",
-        "operationId": "search_tutelas_api_v1_search_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/search/{tipo_tutela}": {
-      "get": {
-        "summary": "Search Tutelas",
-        "description": "Esta función busca tutelas relacionadas con la palabra clave proporcionada en la ruta URL.\n\nArgs:\n    tipo_tutela (str): La palabra clave para buscar en las tutelas.\n\nReturns:\n    dict: Un diccionario con la palabra clave y las tutelas relacionadas.",
-        "operationId": "search_tutelas_api_v1_search__tipo_tutela__get",
-        "parameters": [
-          {
-            "name": "tipo_tutela",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Tipo Tutela"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "HTTPValidationError": {
-        "properties": {
-          "detail": {
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "type": "array",
-            "title": "Detail"
-          }
-        },
-        "type": "object",
-        "title": "HTTPValidationError"
-      },
-      "ValidationError": {
-        "properties": {
-          "loc": {
-            "items": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                }
-              ]
-            },
-            "type": "array",
-            "title": "Location"
-          },
-          "msg": {
-            "type": "string",
-            "title": "Message"
-          },
-          "type": {
-            "type": "string",
-            "title": "Error Type"
-          }
-        },
-        "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
-        "title": "ValidationError"
-      }
-    }
-  }
-}
-```
+
