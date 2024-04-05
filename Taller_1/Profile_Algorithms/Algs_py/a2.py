@@ -7,6 +7,9 @@ def mi_algoritmo(n):
     """
     Esta función genera una lista de pares a partir de un rango dado.
 
+    Big O = O(n^2), hay dos bucles anidados [for i in lista] y [for j in lista]
+
+
     Args:
         n (int): El rango para generar la lista de pares.
 

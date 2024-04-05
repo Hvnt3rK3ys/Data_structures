@@ -5,6 +5,9 @@ def generar_subconjuntos(conjunto):
     """
     Esta función genera todos los subconjuntos posibles de un conjunto dado.
 
+    Big O = O(2^n), Esto se debe a que está generando todos los subconjuntos posibles de un conjunto dado.
+    Para un conjunto de tamaño n, hay 2^n posibles subconjuntos (incluyendo el conjunto vacío y el conjunto completo).
+
     Args:
         conjunto (list): El conjunto original.
 

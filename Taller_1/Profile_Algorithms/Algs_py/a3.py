@@ -10,6 +10,9 @@ def operacion_intensiva_memoria(n):
     """
     Esta función genera una gran cantidad de uso de memoria temporalmente.
 
+    Big O = O(n), Hay un bucle que genera una lista de tamaño n utilizando una comprensión de lista
+    Este bucle itera n veces, por lo que el tiempo de ejecución es proporcional al tamaño de la entrada n
+
     Args:
         n (int): El número de elementos en la lista generada.
 

@@ -6,6 +6,8 @@ def busqueda(arr, elemento_buscado):
     """
     Esta función realiza una búsqueda binaria en un array ordenado.
 
+    Big O = O(log n), La búsqueda binaria divide el array en mitades en cada iteración.
+    Por lo tanto, el tiempo de ejecución es logarítmico con respecto al tamaño del array.
     Args:
         arr (list): El array en el que buscar.
         elemento_buscado (int): El elemento a buscar.

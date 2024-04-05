@@ -7,6 +7,9 @@ def imprimir(lista):
     """
     Esta función imprime la lista proporcionada.
 
+    Big O = O(1), Esto se debe a que a pesar del tamaño de la lista,
+    la función solo realiza una operación: imprimir la lista
+
     Args:
         lista (list): La lista a imprimir.
 
