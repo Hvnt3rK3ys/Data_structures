@@ -4,7 +4,7 @@ Esta documentación describe cómo usar la API FastAPI para interactuar con un s
 
 # API disponible en:
 ```markdown
-asdasdasd
+http://146.190.154.215/api/v1/search
 ```
 
 
