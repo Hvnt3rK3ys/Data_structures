@@ -3,16 +3,21 @@ from fastapi import FastAPI # Se utiliza en la instanciacion de la aplicacion Fa
 import multiprocessing # Se utiliza en el endpoint desencolar
 import boto3 # Se utiliza en la autenticacion con AWS y conexion con SQS
 import uuid # Se utiliza en la funcion QueueSQS
+import uvicorn
 
 #⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 '''
 Seccion de autenticacion con AWS y conexion con SQS
 '''
 
+
 aws_access_key_idSec = input("Por favor, ingrese su AWS Access Key ID: ")
 aws_secret_access_keySec = input("Por favor, ingrese su AWS Secret Access Key: ")
 queue_urlSec = input("Por favor, ingrese su AWS SQS Queue URL: ")
 region_zoneSec = input("Por favor, ingrese su AWS Region: ")
+
+
+
 
 
 # Crear un cliente de AWS SQS
@@ -95,20 +100,30 @@ def DequeueSQS():
 Función para generar el árbol binario con los datos recibidos de la cola
 
 Clase TreeNode:
-    Esta clase representa un nodo en un árbol binario. Cada nodo tiene un valor y dos hijos: izquierdo y derecho.
-
-Función insert_in_binary_tree(root, value):
-    Esta función inserta un nuevo valor en el árbol binario. La inserción se realiza en el nivel más bajo posible y hacia la izquierda. 
-    Si la raíz es None, se crea un nuevo TreeNode con el valor proporcionado. 
-    Si la raíz no es None, se utiliza una cola para recorrer el árbol y encontrar el lugar adecuado para la inserción.
+    Esta clase representa un nodo en un árbol binario.
+    Atributos:
+        value: El valor almacenado en el nodo.
+        left (TreeNode): El hijo izquierdo del nodo.
+        right (TreeNode): El hijo derecho del nodo.
+        
 
 Función create_binary_tree(linearConsumer: list):
-    Esta función crea un árbol binario a partir de una lista de valores (linearConsumer). 
-    El primer elemento de la lista se convierte en la raíz del árbol, y los elementos restantes se insertan en el árbol en el orden en que aparecen en la lista.
-
+    Crea un árbol binario a partir de una lista de valores.
+    La función toma una lista de valores y crea un árbol binario completo de izquierda a derecha.
+    Args:
+        linearConsumer (list): La lista de valores para crear el árbol.
+    Returns:
+        TreeNode: La raíz del árbol binario creado.
+        
 Función tree_to_dict(node):
-    Esta función convierte un árbol binario en un diccionario para facilitar su visualización y manipulación. 
-    Cada nodo del árbol se convierte en una clave en el diccionario, y los hijos izquierdo y derecho del nodo se convierten en sub-diccionarios.
+    Convierte un árbol binario en un diccionario.
+    La función toma un nodo (que representa un árbol binario) y lo convierte en un diccionario. 
+    Cada nodo se convierte en una clave en el diccionario, y los hijos izquierdo y derecho del nodo se convierten en sub-diccionarios.
+    Args:
+        node (TreeNode): El nodo raíz del árbol binario.
+    Returns:
+        dict: El diccionario que representa el árbol binario.
+        
 '''
 
 class TreeNode:
@@ -117,29 +132,24 @@ class TreeNode:
         self.left = None  # Inicializa el hijo izquierdo como None
         self.right = None  # Inicializa el hijo derecho como None
 
-def insert_in_binary_tree(root, value):
-    if root is None:  # Si no hay raíz, crea un nuevo nodo con el valor
-        return TreeNode(value)
-    queue = [root]  # Crea una cola con la raíz
-    while queue:  # Mientras haya nodos en la cola
-        node = queue.pop(0)  # Saca el primer nodo de la cola
-        if not node.left:  # Si no hay hijo izquierdo, crea uno con el valor
-            node.left = TreeNode(value)
-            return
-        else:
-            queue.append(node.left)  # Agrega el hijo izquierdo a la cola
-        if not node.right:  # Si no hay hijo derecho, crea uno con el valor
-            node.right = TreeNode(value)
-            return
-        else:
-            queue.append(node.right)  # Agrega el hijo derecho a la cola
-
 def create_binary_tree(linearConsumer: list):
     if not linearConsumer:  # Si la lista está vacía, devuelve None
         return None
     root = TreeNode(linearConsumer[0])  # Crea la raíz con el primer elemento
-    for value in linearConsumer[1:]:  # Itera sobre el resto de la lista
-        insert_in_binary_tree(root, value)  # Inserta cada valor en el árbol
+    queue = [root]  # Inicializa la cola con la raíz
+    index = 1  # Índice para recorrer los elementos de la lista
+
+    while index < len(linearConsumer):
+        node = queue.pop(0)  # Saca el primer nodo de la cola
+        if index < len(linearConsumer):
+            node.left = TreeNode(linearConsumer[index])  # Crea el hijo izquierdo
+            queue.append(node.left)  # Agrega el hijo izquierdo a la cola
+            index += 1
+        if index < len(linearConsumer):
+            node.right = TreeNode(linearConsumer[index])  # Crea el hijo derecho
+            queue.append(node.right)  # Agrega el hijo derecho a la cola
+            index += 1
+
     return root  # Devuelve la raíz del árbol
 
 def tree_to_dict(node):
@@ -150,6 +160,7 @@ def tree_to_dict(node):
         'left': tree_to_dict(node.left),  # Recursivamente crea el hijo izquierdo
         'right': tree_to_dict(node.right)  # Recursivamente crea el hijo derecho
     }
+
 
 #⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
@@ -166,13 +177,31 @@ def read_root():
 '''
 Endpoint para enviar mensajes a SQS
 '''
+def process_batch(batch_size: int):
+    return QueueSQS(batch_size)
+
+
 @app.post("/encolar")
 async def encolar(cantidad_enviada: dict):
-    consumo = QueueSQS(cantidad_enviada["cantidad_mensajes"])
+    # Obtener el número de workers máximos según el número de CPU cores
+    max_workers = multiprocessing.cpu_count()
+    # Número total de mensajes a enviar
+    total_messages = cantidad_enviada["cantidad_mensajes"]
+    # Crear una lista de tamaños de lotes a procesar
+    batch_sizes = [min(max_workers, total_messages - i) for i in range(0, total_messages, max_workers)]
+    # Crear un pool de workers
+    with multiprocessing.Pool(max_workers) as pool:
+        # Procesar los mensajes en paralelo
+        results = pool.map(process_batch, batch_sizes)
+    # Aplanar la lista de resultados
+    linearConsumer = [msg_id for batch in results for msg_id in batch]
+    # Devolver la respuesta con la lista de consumidores y la cantidad de mensajes
     return {
-        "queue_messages": consumo,
-        "queue_quantity": len(consumo)
+        "queue_messages": linearConsumer,
+        "queue_quantity": len(linearConsumer)
     }
+
+
 
 '''
 Endpoint para recibir mensajes de SQS
@@ -212,5 +241,4 @@ async def desencolar(cantidad_enviada: dict):
 
 # Punto de entrada para iniciar la aplicación
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
