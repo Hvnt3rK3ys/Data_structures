@@ -1,62 +1,184 @@
-# Uso de la API para hallar tutelas
+# Uso de la API SQS, bank service
 
-Esta documentación describe cómo usar la API FastAPI para interactuar con un sistema de gestión de tutelas.
+Esta documentación describe cómo usar la API FastAPI para interactuar con un sistema de gestión de colas.
 
-# API disponible en:
+# Endpoint para enviar mensajes:
 ```markdown
-http://146.190.154.215/api/v1/search
+ipDirection/8000/encolar?cantidad_mensajes=[coloque la cantidad de mensajes como entero]
 ```
 
+# Endpoint para consumir mensajes:
+```markdown
+ipDirection/8000/desencolar?cantidad_mensajes=[coloque la cantidad de mensajes como entero]
+```
+
+## API Demo
+[![API usage example](https://img.youtube.com/vi/ID_DEL_VIDEO/0.jpg)](https://www.youtube.com/watch?v=ID_DEL_VIDEO)
 
 
-## Endpoints Disponibles
+# API Documentation
 
-### 1. [GET] / (Root)
+## Overview
+This API allows you to enqueue and dequeue messages. The main endpoints are:
+- `/`: Root endpoint
+- `/encolar`: Enqueue messages
+- `/desencolar`: Dequeue messages
 
-- **Descripción:** Este endpoint redirige la URL raíz a la URL de búsqueda.
-- **Operación:** root__get
-- **Respuesta Exitosa:**
-  - Código: 200
-  - Descripción: Respuesta exitosa
-  - Formato: JSON
+## Endpoints
 
-### 2. [GET] /api/v1/search (Search Tutelas)
+### Root Endpoint
 
-- **Descripción:** Este endpoint obtiene todas las tutelas y las devuelve en un diccionario.
-- **Operación:** search_tutelas_api_v1_search_get
-- **Respuesta Exitosa:**
-  - Código: 200
-  - Descripción: Respuesta exitosa
-  - Formato: JSON
+#### `GET /`
+**Summary:** Read Root
 
-### 3. [GET] /api/v1/search/{tipo_tutela} (Search Tutelas)
+**Responses:**
+- `200`: Successful Response
+  - Content: `application/json`
 
-- **Descripción:** Este endpoint busca tutelas relacionadas con la palabra clave proporcionada en la ruta URL.
-- **Operación:** search_tutelas_api_v1_search__tipo_tutela__get
-- **Parámetros:**
-  - `tipo_tutela` (str): La palabra clave para buscar en las tutelas.
-- **Respuestas:**
-  - Código: 200
-    - Descripción: Respuesta exitosa
-    - Formato: JSON
-  - Código: 422
-    - Descripción: Error de validación
-    - Formato: JSON
+### Enqueue Messages
 
-## Modelos de Datos
+#### `GET /encolar`
+**Summary:** Enqueue messages
 
-### HTTPValidationError
-- **Propiedades:**
-  - `detail` (array): Detalles del error
-- **Descripción:** Objeto que representa un error de validación HTTP.
+**Parameters:**
+- `cantidad_mensajes` (query, integer, required): The number of messages to send.
+  - Description: The number of messages to send
 
-### ValidationError
-- **Propiedades:**
-  - `loc` (array): Ubicación del error
-  - `msg` (str): Mensaje de error
-  - `type` (str): Tipo de error
-- **Descripción:** Objeto que representa un error de validación.
+**Responses:**
+- `200`: Successful Response
+  - Content: `application/json`
+- `422`: Validation Error
+  - Content: `application/json`
+  - Schema: `HTTPValidationError`
 
+### Dequeue Messages
 
+#### `GET /desencolar`
+**Summary:** Dequeue messages
 
+**Parameters:**
+- `cantidad_mensajes` (query, integer, required): The number of messages to consume (0 for all).
+  - Description: The number of messages to consume (0 for all)
 
+**Responses:**
+- `200`: Successful Response
+  - Content: `application/json`
+- `422`: Validation Error
+  - Content: `application/json`
+  - Schema: `HTTPValidationError`
+
+## Components
+
+### Schemas
+
+#### HTTPValidationError
+- **Properties:**
+  - `detail` (array of `ValidationError`): Detail
+- **Type:** object
+- **Title:** HTTPValidationError
+
+#### ValidationError
+- **Properties:**
+  - `loc` (array of `string` or `integer`): Location
+  - `msg` (string): Message
+  - `type` (string): Error Type
+- **Type:** object
+- **Required:**
+  - `loc`
+  - `msg`
+  - `type`
+- **Title:** ValidationError
+
+## Usage Examples
+
+### Enqueue Messages
+
+**Request:**
+```
+GET /encolar?cantidad_mensajes=20
+```
+
+**Response:**
+```json
+{
+  "queue_messages": [
+    "1450d28c-5736-4c31-a57c-f9232b62d2a5",
+    "7134d548-60bc-48ca-9f4c-cb60e4e0de9a",
+    ...
+  ],
+  "queue_quantity": 20
+}
+```
+
+### Dequeue Messages
+
+**Request:**
+```
+GET /desencolar?cantidad_mensajes=10
+```
+
+**Response:**
+```json
+{
+  "dequeue_messages": [
+    "8092a7cd-ec18-4180-b402-0f7e317153e0",
+    "f540a0a2-6a03-4875-82b8-535d2c17ad40",
+    ...
+  ],
+  "dequeue_quantity": 10,
+  "generated_tree 🌲": {
+    "value": "8092a7cd-ec18-4180-b402-0f7e317153e0",
+    "left": {
+      ...
+    },
+    "right": {
+      ...
+    }
+  }
+}
+```
+
+**Request for all messages:**
+```
+GET /desencolar?cantidad_mensajes=0
+```
+
+**Response:**
+```json
+{
+  "dequeue_messages": [
+    "8092a7cd-ec18-4180-b402-0f7e317153e0",
+    "f540a0a2-6a03-4875-82b8-535d2c17ad40",
+    ...
+  ],
+  "dequeue_quantity": 50,
+  "generated_tree 🌲": {
+    "value": "8092a7cd-ec18-4180-b402-0f7e317153e0",
+    "left": {
+      ...
+    },
+    "right": {
+      ...
+    }
+  }
+}
+```
+
+## Error Responses
+
+### Validation Error (`422`)
+
+**Response:**
+```json
+{
+  "detail": [
+    {
+      "loc": ["query", "cantidad_mensajes"],
+      "msg": "field required",
+      "type": "value_error.missing"
+    }
+  ]
+}
+```
+
+This documentation provides an overview of the API endpoints, their parameters, responses, and examples of usage.
