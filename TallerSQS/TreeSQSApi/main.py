@@ -1,24 +1,20 @@
-from random import randint # Se utiliza en la funcion QueueSQS
-from fastapi import FastAPI # Se utiliza en la instanciacion de la aplicacion FastAPI
-import multiprocessing # Se utiliza en el endpoint desencolar
-import boto3 # Se utiliza en la autenticacion con AWS y conexion con SQS
-import uuid # Se utiliza en la funcion QueueSQS
+from random import randint  # Se utiliza en la funcion QueueSQS
+from fastapi import FastAPI, Query  # Se utiliza en la instanciacion de la aplicacion FastAPI
+import multiprocessing  # Se utiliza en el endpoint desencolar
+import boto3  # Se utiliza en la autenticacion con AWS y conexion con SQS
+import uuid  # Se utiliza en la funcion QueueSQS
 import uvicorn
 
-#⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+
+# ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 '''
 Seccion de autenticacion con AWS y conexion con SQS
 '''
-
 
 aws_access_key_idSec = input("Por favor, ingrese su AWS Access Key ID: ")
 aws_secret_access_keySec = input("Por favor, ingrese su AWS Secret Access Key: ")
 queue_urlSec = input("Por favor, ingrese su AWS SQS Queue URL: ")
 region_zoneSec = input("Por favor, ingrese su AWS Region: ")
-
-
-
-
 
 # Crear un cliente de AWS SQS
 sqs = boto3.client(
@@ -31,6 +27,8 @@ sqs = boto3.client(
 '''
 Funcion para extraer la totalidad de mensajes en la cola SQS
 '''
+
+
 def get_SQS_length():
     response = sqs.get_queue_attributes(
         QueueUrl=queue_urlSec,
@@ -39,32 +37,33 @@ def get_SQS_length():
     return int(response['Attributes'].get('ApproximateNumberOfMessages', 0))
 
 
-
-
-#⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+# ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 '''
 Funcion para encolar mensajes en la cola SQS
 '''
 
-def QueueSQS(cantidad_mensajes:int):
+
+def QueueSQS(cantidad_mensajes: int):
     consumirCola = list()
     # Publicar un mensaje en la cola
     for i in range(0, cantidad_mensajes):
         response = sqs.send_message(
             QueueUrl=queue_urlSec,
-            MessageBody= f'{randint(0, cantidad_mensajes)}', #Expected 1m maximum free tier
+            MessageBody=f'{randint(0, cantidad_mensajes)}',  # Expected 1m maximum free tier
             MessageGroupId='pagos',
             MessageDeduplicationId=str(uuid.uuid4())
         )
         consumirCola.append(response["MessageId"])
+        print(f"Mensaje enviado: {response['MessageId']}")
     return consumirCola
 
 
-#⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+# ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
 '''
 Funcion para desencolar mensajes de la cola SQS
 '''
+
 
 def DequeueSQS():
     # Recibir mensajes de la cola
@@ -80,7 +79,7 @@ def DequeueSQS():
         VisibilityTimeout=30,
         WaitTimeSeconds=0
     )
-    #print(response)
+    # print(response)
     if response.get('Messages'):
         message = response['Messages']
         print(f"Mensaje recibido: {message[0]['Body']}")
@@ -94,7 +93,7 @@ def DequeueSQS():
     sqs.close()
 
 
-#⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+# ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
 '''
 Función para generar el árbol binario con los datos recibidos de la cola
@@ -105,7 +104,7 @@ Clase TreeNode:
         value: El valor almacenado en el nodo.
         left (TreeNode): El hijo izquierdo del nodo.
         right (TreeNode): El hijo derecho del nodo.
-        
+
 
 Función create_binary_tree(linearConsumer: list):
     Crea un árbol binario a partir de una lista de valores.
@@ -114,7 +113,7 @@ Función create_binary_tree(linearConsumer: list):
         linearConsumer (list): La lista de valores para crear el árbol.
     Returns:
         TreeNode: La raíz del árbol binario creado.
-        
+
 Función tree_to_dict(node):
     Convierte un árbol binario en un diccionario.
     La función toma un nodo (que representa un árbol binario) y lo convierte en un diccionario. 
@@ -123,14 +122,16 @@ Función tree_to_dict(node):
         node (TreeNode): El nodo raíz del árbol binario.
     Returns:
         dict: El diccionario que representa el árbol binario.
-        
+
 '''
+
 
 class TreeNode:
     def __init__(self, value):
         self.value = value  # Crea un nodo con un valor
         self.left = None  # Inicializa el hijo izquierdo como None
         self.right = None  # Inicializa el hijo derecho como None
+
 
 def create_binary_tree(linearConsumer: list):
     if not linearConsumer:  # Si la lista está vacía, devuelve None
@@ -152,6 +153,7 @@ def create_binary_tree(linearConsumer: list):
 
     return root  # Devuelve la raíz del árbol
 
+
 def tree_to_dict(node):
     if not node:  # Si no hay nodo, devuelve None
         return None
@@ -162,7 +164,7 @@ def tree_to_dict(node):
     }
 
 
-#⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+# ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
 '''
 Instanciacion de la aplicacion FastAPI
@@ -174,19 +176,24 @@ app = FastAPI()
 def read_root():
     return {"message": "Welcome to the SQS api"}
 
+
+# ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+
 '''
 Endpoint para enviar mensajes a SQS
 '''
+
+
 def process_batch(batch_size: int):
     return QueueSQS(batch_size)
 
 
-@app.post("/encolar")
-async def encolar(cantidad_enviada: dict):
+@app.get("/encolar")
+async def encolar(cantidad_mensajes: int = Query(..., description="Cantidad de mensajes a enviar")):
     # Obtener el número de workers máximos según el número de CPU cores
     max_workers = multiprocessing.cpu_count()
     # Número total de mensajes a enviar
-    total_messages = cantidad_enviada["cantidad_mensajes"]
+    total_messages = cantidad_mensajes
     # Crear una lista de tamaños de lotes a procesar
     batch_sizes = [min(max_workers, total_messages - i) for i in range(0, total_messages, max_workers)]
     # Crear un pool de workers
@@ -194,36 +201,47 @@ async def encolar(cantidad_enviada: dict):
         # Procesar los mensajes en paralelo
         results = pool.map(process_batch, batch_sizes)
     # Aplanar la lista de resultados
-    linearConsumer = [msg_id for batch in results for msg_id in batch]
+    linear_consumer = [msg_id for batch in results for msg_id in batch]
     # Devolver la respuesta con la lista de consumidores y la cantidad de mensajes
     return {
-        "queue_messages": linearConsumer,
-        "queue_quantity": len(linearConsumer)
+        "queue_messages": linear_consumer,
+        "queue_quantity": len(linear_consumer)
     }
 
+
+
+# ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
 
 '''
 Endpoint para recibir mensajes de SQS
 '''
 
+
 # Resolver llamado dinamico a SQS para preguntar la longitud maxima de la cola
 @app.get("/desencolar")
-async def desencolar(cantidad_enviada: dict):
+async def desencolar(cantidad_mensajes: int = Query(..., description="Cantidad de mensajes a consumir (0 para todos)")):
     # Obtener el número de workers máximos según el número de CPU cores
     max_workers = multiprocessing.cpu_count()
     # Obtener la longitud de la cola de SQS
     maxlength = get_SQS_length()
+    # Si el usuario selecciona 0, desencolar todos los mensajes disponibles
+    if cantidad_mensajes == 0:
+        cantidad_mensajes = maxlength
+    else:
+        cantidad_mensajes = min(cantidad_mensajes, maxlength)
     # Crear una lista de consumidores lineales
     linearConsumer = []
     # Procesar los mensajes por lotes
-    batch_size = min(maxlength, max_workers)
-    for _ in range(0, maxlength, batch_size):
+    batch_size = min(cantidad_mensajes, max_workers)
+    total_dequeued = 0
+    while total_dequeued < cantidad_mensajes:
         batch = []
-        for _ in range(batch_size):
+        for _ in range(min(batch_size, cantidad_mensajes - total_dequeued)):
             batch.append(DequeueSQS())
         # Agregar el lote de mensajes a la lista de consumidores lineales
         linearConsumer.extend(batch)
+        total_dequeued += len(batch)
     # Crear un árbol binario a partir de la lista de consumidores lineales
     binary_tree_root = create_binary_tree(linearConsumer)
     # Convertir el árbol binario a un diccionario
@@ -236,7 +254,9 @@ async def desencolar(cantidad_enviada: dict):
     }
 
 
-#⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+
+
+# ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
 
 # Punto de entrada para iniciar la aplicación
