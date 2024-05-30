@@ -12,10 +12,6 @@ ipDirection/8000/encolar?cantidad_mensajes=[coloque la cantidad de mensajes como
 ipDirection/8000/desencolar?cantidad_mensajes=[coloque la cantidad de mensajes como entero]
 ```
 
-## API Demo
-[![API usage example](https://img.youtube.com/vi/ID_DEL_VIDEO/0.jpg)](https://www.youtube.com/watch?v=ID_DEL_VIDEO)
-
-
 # API Documentation
 
 ## Overview
