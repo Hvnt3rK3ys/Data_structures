@@ -9,7 +9,9 @@ import uvicorn
 # ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 '''
 Seccion de autenticacion con AWS y conexion con SQS
+
 '''
+
 
 aws_access_key_idSec = input("Por favor, ingrese su AWS Access Key ID: ")
 aws_secret_access_keySec = input("Por favor, ingrese su AWS Secret Access Key: ")
@@ -209,7 +211,6 @@ async def encolar(cantidad_mensajes: int = Query(..., description="Cantidad de m
     }
 
 
-
 # ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
 
@@ -225,6 +226,9 @@ async def desencolar(cantidad_mensajes: int = Query(..., description="Cantidad d
     max_workers = multiprocessing.cpu_count()
     # Obtener la longitud de la cola de SQS
     maxlength = get_SQS_length()
+    # Si la longitud de la cola es cero, detener el proceso y devolver un mensaje
+    if maxlength == 0:
+        return {"message": "La longitud de la cola es nula"}
     # Si el usuario selecciona 0, desencolar todos los mensajes disponibles
     if cantidad_mensajes == 0:
         cantidad_mensajes = maxlength
@@ -238,7 +242,11 @@ async def desencolar(cantidad_mensajes: int = Query(..., description="Cantidad d
     while total_dequeued < cantidad_mensajes:
         batch = []
         for _ in range(min(batch_size, cantidad_mensajes - total_dequeued)):
-            batch.append(DequeueSQS())
+            message = DequeueSQS()
+            if message:
+                batch.append(message)
+        if not batch:
+            break  # Si no se obtienen mensajes, salir del bucle
         # Agregar el lote de mensajes a la lista de consumidores lineales
         linearConsumer.extend(batch)
         total_dequeued += len(batch)
