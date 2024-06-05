@@ -4,19 +4,28 @@ import multiprocessing  # Se utiliza en el endpoint desencolar
 import boto3  # Se utiliza en la autenticacion con AWS y conexion con SQS
 import uuid  # Se utiliza en la funcion QueueSQS
 import uvicorn
+from dotenv import load_dotenv
+import os
 
 
 # ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 '''
 Seccion de autenticacion con AWS y conexion con SQS
 
-'''
-
-
 aws_access_key_idSec = input("Por favor, ingrese su AWS Access Key ID: ")
 aws_secret_access_keySec = input("Por favor, ingrese su AWS Secret Access Key: ")
 queue_urlSec = input("Por favor, ingrese su AWS SQS Queue URL: ")
 region_zoneSec = input("Por favor, ingrese su AWS Region: ")
+'''
+
+# Carga las variables de entorno del archivo .env
+load_dotenv()
+
+aws_access_key_idSec = os.getenv("AWS_ACCESS_KEY_ID")
+aws_secret_access_keySec = os.getenv("AWS_SECRET_ACCESS_KEY")
+queue_urlSec = os.getenv("AWS_SQS_QUEUE_URL")
+region_zoneSec = os.getenv("AWS_REGION")
+
 
 # Crear un cliente de AWS SQS
 sqs = boto3.client(
@@ -178,6 +187,22 @@ app = FastAPI()
 def read_root():
     return {"message": "Welcome to the SQS api"}
 
+
+@app.get("/check_credentials")
+def check_credentials():
+    try:
+        # Intentar obtener los atributos de la cola
+        response = sqs.get_queue_attributes(
+            QueueUrl=queue_urlSec,
+            AttributeNames=['All']
+        )
+        # Si la operación es exitosa, imprimir un mensaje y devolver un estado exitoso
+        print("Las credenciales de AWS son correctas.")
+        return {"status": "Las credenciales de AWS son correctas."}
+    except Exception as e:
+        # Si la operación falla, imprimir un mensaje y devolver un estado de error
+        print(f"Las credenciales de AWS son incorrectas. Error: {e}")
+        return {"status": f"Las credenciales de AWS son incorrectas. Error: {e}"}
 
 # ⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
