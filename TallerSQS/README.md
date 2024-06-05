@@ -33,7 +33,7 @@ This API allows you to enqueue and dequeue messages. The main endpoints are:
 
 ### Enqueue Messages
 
-#### `GET /encolar`
+#### `POST /encolar`
 **Summary:** Enqueue messages
 
 **Parameters:**
@@ -91,7 +91,7 @@ This API allows you to enqueue and dequeue messages. The main endpoints are:
 
 **Request:**
 ```
-GET /encolar?cantidad_mensajes=20
+POST /encolar?cantidad_mensajes=20
 ```
 
 **Response:**
